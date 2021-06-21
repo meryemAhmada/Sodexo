@@ -1,0 +1,143 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,force:hasRecordId,forceCommunity:availableForAllPageTypes"
+                controller="SPIRE_CTRL003CriteriaEditor">
+    <!-- External Fields -->
+    <aura:attribute name="selectedObj" type="Object" description="Rule Engine Object"/>
+    <aura:attribute name="filters" type="List" default="[]" description="List Of Filters"/>
+    <aura:attribute name="idsToDelete" type="List" default="[]" description="Rule Engine Ids to be deleted"/>
+    
+    <!-- Internal Fields -->
+    <aura:attribute name="operators" type="List" description="List of operators of criteria form"/>
+
+    <aura:attribute name="selectedField" type="Object" description="Selected Field of criteria form"/>
+    <aura:attribute name="selectedFieldValue" type="Object" description="Selected Field of Field Reference of criteria form (value)"/>
+    <aura:attribute name="selectedValue" type="String" description="Selected Value of criteria form (value)"/>
+    <aura:attribute name="selectedOperator" type="String" description="Selected Operator of criteria form"/>
+    <aura:attribute name="selectedType" type="String" description="Selected Type of criteria form"/>
+	<aura:attribute name="selectedFormulaField" type="Object" description="Selected Formula Field of criteria form (Formula)"/>
+    <aura:attribute name="selectedFormulaOperator" type="String" description="Selected Formula Operator of criteria form (Formula)"/>
+    <aura:attribute name="selectedFormulaValue" type="String" description="Selected Value of criteria form (Formula)"/>
+    <aura:attribute name="currentField" type="Map" default="{'fieldtype':'STRING'}"/>
+    <!-- Flags -->
+    <aura:attribute name="isEditMode" type="Boolean"/>
+    <aura:attribute name="editingIndex" type="Integer"/>
+    <!-- Handlers -->
+    <aura:handler name="change" value="{!v.selectedField}" action="{!c.handleFieldChange}"/>
+    <aura:handler name="change" value="{!v.selectedObj}" action="{!c.handleObjChange}"/>
+
+    <div>
+        <div class="slds-grid slds-gutters">
+            <!-- Field Start -->
+            <div class="slds-col slds-size_4-of-12">
+                <c:SPIRE_CMP001_FieldSelection selectedField="{!v.selectedField}" selectedObj="{!v.selectedObj}" />
+            </div>
+            <!-- Field End -->
+            <!-- Operators Start --> 
+            <div class="slds-col slds-size_2-of-12">
+                <lightning:select value="{!v.selectedOperator}" label="{!$Label.c.SPIRE_Criteria_Editor_Operator_Label}" aura:id="operators" onchange="{!c.clearValue}">
+                    <aura:iteration items="{!v.operators}" var="option">
+                        <option text="{!option.label}" value="{!option.value}" selected="{!option.value == v.selectedOperator}"/>
+                    </aura:iteration>
+                </lightning:select>
+            </div> 
+            <!-- Operators End -->
+            <!-- Value For Is Null Operator Start-->
+            <aura:if isTrue="{! v.selectedOperator == $Label.c.SPIRE_Criteria_Editor_Is_Null_Value}">
+                <div class="slds-col slds-size_2-of-12">
+                    <lightning:select label="{!$Label.c.SPIRE_Criteria_Editor_Value_Label}" aura:id="value" value="{!v.selectedValue}">
+                        <option text="--None--" value="" selected="{!'' == v.selectedValue}"/>
+                        <option text="TRUE" value="TRUE" selected="{!'TRUE' == v.selectedValue}"/>
+                        <option text="FALSE" value="FALSE" selected="{!'FALSE' == v.selectedValue}"/>
+                    </lightning:select>
+                </div>
+            </aura:if>
+            <!-- Value For Is Null Operator End-->
+            <aura:if isTrue="{! v.selectedOperator != $Label.c.SPIRE_Criteria_Editor_Is_Null_Value}">
+                    <!-- Types For Operator != Null --> 
+                    <div class="slds-col slds-size_2-of-12">  
+                        <lightning:select value="{!v.selectedType}" label="{!$Label.c.SPIRE_Criteria_Editor_Type_Label}" aura:id="types">
+                            <option text="{!$Label.c.SPIRE_Criteria_Editor_Type_Value_Option}" value="{!$Label.c.SPIRE_Criteria_Editor_Type_Value_Option}" selected="{!SPIRE_Criteria_Editor_Type_Value_Option == v.selectedType}"/>
+                            <option text="{!$Label.c.SPIRE_Criteria_Editor_Field_Reference_Type_Option}" value="{!$Label.c.SPIRE_Criteria_Editor_Field_Reference_Type_Option}" selected="{!$Label.c.SPIRE_Criteria_Editor_Field_Reference_Type_Option == v.selectedType}"/>
+                            <!-- Formula Type only For Numeric fieltypes-->
+                            <aura:if isTrue="{!or(
+                                                     or(
+                                                            or(v.selectedField.field.fieldtype == 'DATE',v.selectedField.field.fieldtype == 'DATETIME'),
+                                                            or(v.selectedField.field.fieldtype == 'INTEGER',v.selectedField.field.fieldtype == 'LONG')
+                                                        ),
+                                                     or(
+                                             				or(v.selectedField.field.fieldtype == 'CURRENCY',v.selectedField.field.fieldtype == 'PERCENT'),
+                                             				or(v.selectedField.field.fieldtype == 'DOUBLE',v.selectedField.field.fieldtype == 'DECIMAL')
+                                             			)
+                                                 )
+                                             }"> 
+                                 <option text="{!$Label.c.SPIRE_Criteria_Editor_Formula_Type_Option}" value="{!$Label.c.SPIRE_Criteria_Editor_Formula_Type_Option}" selected="{!$Label.c.SPIRE_Criteria_Editor_Formula_Type_Option == v.selectedType}"/>
+                            </aura:if>
+                        </lightning:select>
+                    </div>
+                    <!-- Value For Operator != Null -->
+                    <div class="slds-col slds-size_3-of-12">
+                        <!-- Type = Value-->
+                        <aura:if isTrue="{! v.selectedType == $Label.c.SPIRE_Criteria_Editor_Type_Value_Option}">
+                            <c:SPIRE_CMP006_SimpleInput requestField="{!v.currentField}" value="{!v.selectedValue}" aura:id="simpleInput"/>
+                        </aura:if>
+                        <!-- Type = Field Reference-->
+                        <aura:if isTrue="{! v.selectedType == $Label.c.SPIRE_Criteria_Editor_Field_Reference_Type_Option}">
+                            <c:SPIRE_CMP001_FieldSelection selectedField="{!v.selectedFieldValue}" selectedObj="{!v.selectedObj}" />
+                        </aura:if>
+                        <!-- Type = Formula-->
+                        <aura:if isTrue="{! v.selectedType == $Label.c.SPIRE_Criteria_Editor_Formula_Type_Option}">
+                            <aura:if isTrue="{!or(v.selectedField.field.fieldtype == 'DATE' , v.selectedField.field.fieldtype == 'DATETIME')}">
+                                <ul class="slds-list_horizontal slds-has-block-links_space">
+                                    <c:SPIRE_CMP001_FieldSelection selectedField="{!v.selectedFormulaField}" selectedObj="{!v.selectedObj}" label="{!$Label.c.SPIRE_Criteria_Editor_Formula_Field_Label}" />
+                                    <li class="slds-align-bottom">
+                                        <a onclick="{!c.setFormulaFieldToday}">[TODAY]</a>
+                                    </li>
+                                </ul>
+                            </aura:if> 
+                            <aura:if isTrue="{!and(v.selectedField.field.fieldtype != 'DATE' , v.selectedField.field.fieldtype != 'DATETIME')}">
+                                <c:SPIRE_CMP001_FieldSelection selectedField="{!v.selectedFormulaField}" selectedObj="{!v.selectedObj}" label="{!$Label.c.SPIRE_Criteria_Editor_Formula_Field_Label}" />
+                            </aura:if>
+                            <lightning:recordEditForm objectApiName="SPIRE_Rule_Criteria__c">
+                                <lightning:inputField fieldName="SPIRE_Formula_Operator__c" value="{!v.selectedFormulaOperator}"/> 
+                                <lightning:inputField fieldName="SPIRE_Formula_Value__c" value="{!v.selectedFormulaValue}" aura:id="valueInput"/>
+                            </lightning:recordEditForm>                         
+                        </aura:if>
+                    </div>
+            </aura:if>
+
+            <div class="slds-col slds-align-bottom slds-size_1-of-12"> 
+                <lightning:button class="slds-align-bottom" variant="brand" name="OK" label="{!v.isEditMode == true ? $Label.c.SPIRE_Criteria_Editor_Modify_Button : $Label.c.SPIRE_Criteria_Editor_Add_Button}" onclick="{!c.addRow}"/>
+            </div>
+        </div>
+        <br/>
+        <!-- List Of Filters Start -->
+        <div class="slds-grid slds-gutters">
+            <div class="slds-col slds-size_4-of-5 filter-container" aura:id="filterContainer">
+                <ul class="slds-has-dividers_around-space">
+                    <aura:iteration items="{!v.filters}" var="filter" indexVar="index">
+                            <li class="slds-item">
+                                <article class="slds-tile slds-tile_board">
+                                    {!index + 1} &bull;  
+                                    <strong>{!filter.field.pathLabels + ' '} </strong>
+                                    {!filter.operator + ' '}
+                                    <aura:if isTrue="{!filter.type == $Label.c.SPIRE_Criteria_Editor_Type_Value_Option}">
+                                        <strong>{!filter.value + ' '} </strong>
+                                    </aura:if>
+                                    <aura:if isTrue="{!filter.type == $Label.c.SPIRE_Criteria_Editor_Field_Reference_Type_Option}">
+                                        <strong>{!filter.fieldValueLabel + ' '} </strong>
+                                    </aura:if>
+                                    <aura:if isTrue="{!filter.type == $Label.c.SPIRE_Criteria_Editor_Formula_Type_Option}">
+                                        <strong>{!filter.formulaLabel + ' '} </strong>
+                                        {!filter.formulaOperator + ' '}
+                                        <strong>{!filter.formulaValue + ' '} </strong>
+                                    </aura:if>
+                                    <a class="slds-float_right slds-p-right_xx-small slds-p-left_xx-small" onclick="{!c.removeRow}" data-value="{!index}">{!$Label.c.SPIRE_Criteria_Editor_Remove_Link}</a>
+                                    <a class="slds-float_right slds-p-right_xx-small slds-p-left_xx-small" onclick="{!c.setFieldToModify}" data-value="{!index}">{!$Label.c.SPIRE_Criteria_Editor_Modify_Link}</a>
+                                </article>
+                            </li>
+                    </aura:iteration>
+                </ul>
+            </div>
+        </div>
+        <!-- List Of Filters End-->
+    </div>
+</aura:component>

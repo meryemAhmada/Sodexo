@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+	<types>
+		<members>SPIRE_BooleanExpression</members>
+		<members>SPIRE_BooleanExpression_Test</members>
+		<members>SPIRE_CTRL001FieldSelection</members>
+		<members>SPIRE_CTRL001FieldSelection_Test</members>
+		<members>SPIRE_CTRL002CustomLookup</members>
+		<members>SPIRE_CTRL002CustomLookup_Test</members>
+		<members>SPIRE_CTRL003CriteriaEditor</members>
+		<members>SPIRE_CTRL003CriteriaEditor_Test</members>
+		<members>SPIRE_CTRL004RuleEngine</members>
+		<members>SPIRE_CTRL004RuleEngine_Test</members>
+		<members>SPIRE_QueryBuilder</members>
+		<members>SPIRE_QueryBuilder_Test</members>
+		<members>SPIRE_RuleEngineController</members>
+		<members>SPIRE_RuleEngineController_Test</members>
+		<members>SPIRE_RunRuleEngineCalculatorController</members>
+		<members>SPIRE_RunRuleEngineCalculator_Test</members>
+		<members>SPIRE_ScoreCalculatorBatch</members>
+		<members>SPIRE_ScoreCalculatorScheduler</members>
+		<members>SPIRE_ScoreCalculatorScheduler_Test</members>
+		<members>SPIRE_ScoreResetBatch</members>
+		<name>ApexClass</name>
+	</types>
+	<types>
+		<members>SPIRE_CMP001_FieldSelection</members>
+		<members>SPIRE_CMP002_Spinner</members>
+		<members>SPIRE_CMP003_RuleEngine</members>
+		<members>SPIRE_CMP004_ObjectSearch</members>
+		<members>SPIRE_CMP005CriteriaEditor</members>
+		<members>SPIRE_CMP006_SimpleInput</members>
+		<name>AuraDefinitionBundle</name>
+	</types>
+	<version>51.0</version>
+</Package>

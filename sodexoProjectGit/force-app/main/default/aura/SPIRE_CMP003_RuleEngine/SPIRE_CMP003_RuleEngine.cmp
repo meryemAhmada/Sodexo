@@ -1,0 +1,219 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,force:lightningQuickActionWithoutHeader,lightning:isUrlAddressable"
+                controller="SPIRE_CTRL004RuleEngine">
+   
+    <!--Form Attributes-->
+    <aura:attribute name="recordId" type="String" default="" description="Rule Engine Id"/>
+    <aura:attribute name="selectedObj" type="Object" description="Rule Engine Object"/>
+    <aura:attribute name="selectedObjValue" type="String" default="" description="Rule Engine Object name"/>
+    <aura:attribute name="ruleName" type="String" default="" description="Rule Engine name"/>
+    <aura:attribute name="isActif" type="Boolean" default="true" description="Binded to Is Actif field value"/>
+    <aura:attribute name="fieldName" type="Object" description="Binded to Traget field value"/>
+    <aura:attribute name="filters" type="List" description="List of rule criterias"/>
+    <aura:attribute name="idsToDelete" type="List" default="[]" description="List of rule criterias Ids to be deleted upon save (edit mode)"/>
+    <aura:attribute name="takeActionWhen" type="String" default="Meet All Conditions" description="Binded to Take Action When field value"/>   
+    <!-- Flags -->
+    <aura:attribute name="spinner" type="Boolean" default="false"/>
+    <!-- Handlers -->
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:handler name="change" value="{!v.selectedObj}" action="{!c.handleObjChange}"/>
+    
+    <div class="spinnerStyle">
+        <c:SPIRE_CMP002_Spinner spinner="{!v.spinner}"></c:SPIRE_CMP002_Spinner>
+    </div>
+
+    <div class="containerStyle">
+        <!-- Rule Engine Header Start-->
+        <div class="slds-page-header">
+            <div class="slds-page-header__row">
+                <div class="slds-page-header__col-title">
+                <div class="slds-media">
+                    <div class="slds-media__figure">
+                    <span class="slds-icon_container slds-icon-standard-opportunity" title="opportunity">
+                        <lightning:icon iconName="custom:custom67"
+                                        size="medium"
+                                        alternativeText="button icon" 
+                                        />
+                        <span class="slds-assistive-text"> {!$Label.c.SPIRE_Rule_Engine_Name} </span>
+                    </span>
+                    </div>
+                    <div class="slds-media__body">
+                    <div class="slds-page-header__name">
+                        <div class="slds-page-header__name-title">
+                        <h1>
+                            <span class="slds-page-header__title slds-truncate" title="Rohde Corp - 80,000 Widgets">
+                                {!$Label.c.SPIRE_Rule_Engine_Name}
+                            </span>
+                        </h1>
+                        </div>
+                    </div>
+                        <p class="slds-page-header__name-meta">
+                            <aura:if isTrue="{!v.ruleName != ''}">{!v.ruleName}</aura:if>
+                            <aura:if isTrue="{!v.ruleName == ''}">{!$Label.c.SPIRE_Rule_Engine_New_Label}</aura:if>
+                        </p>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </div>
+        <!-- Rule Engine Header End-->
+        <!-- Rule Engine form Body Start -->
+        <div class="slds-box slds-theme_default"> 
+            <lightning:recordEditForm objectApiName="SPIRE_Rule_Engine__c" 
+                                        aura:id="myForm"
+                                        density="comfy" 
+                                        recordId="{!v.recordId}" 
+                                        onsuccess="{!c.onRecordSuccess}"
+                                        onerror="{!c.onRecordError}"
+                                        >
+                <!-- Section 1 Start-->
+                <div class="slds-section slds-is-open" aura:id="section1">    
+                    <h3 class="slds-section__title">
+                        <button aria-controls="section1Content" class="slds-button slds-section__title-action" type="button">
+                            <span onclick="{!c.toggleSection}" data-auraId="section1">
+                                <lightning:icon iconName="utility:switch"
+                                                size="x-small"
+                                                class="slds-section__title-action-icon slds-button__icon_left"
+                                                alternativeText="button icon" 
+                                                />
+                            </span>
+                            <span class="slds-truncate">{!$Label.c.SPIRE_Rule_Engine_Section_1_Title}</span>
+                        </button>
+                    </h3>
+                    <!--section body-->
+                    <div class="slds-section__content" id="section1Content">
+                        <div class="slds-grid slds-glutters slds-grid_vertical-align-start">
+                            <div class="slds-col slds-size_1-of-3">
+                                <!--add custom label for input field-->
+                                 <span style="color: red;">*</span>
+                                <label class="slds-form-element__label" style="margin-right: 0.5rem;">{!$Label.c.SPIRE_Rule_Engine_Name_Label}</label>
+                                <!--lightning help text for input field-->
+                                <lightning:helptext content="{!$Label.c.SPIRE_Rule_Engine_Name_Help_Text}" class="customIcon"/> 
+                                <!-- use variant="label-hidden" for hide standard label-->
+                                <lightning:inputField fieldName="Name" required="true" aura:id="ruleName"
+                                                 variant="label-hidden"/>
+                            </div>
+                            <div class="slds-col slds-size_1-of-3">
+                                <!-- Hidden fields used to bind object value to rule engine fields -->
+                                <lightning:inputField fieldName="SPIRE_Object_Name__c" value="{!v.selectedObj.value}" aura:id="objectName" class="hiddenField" required="true"/>
+                                <lightning:inputField fieldName="SPIRE_TECH_Source_Object_Label__c" value="{!v.selectedObj.label}" aura:id="objectLabel" class="hiddenField" required="true"/>
+
+                                <c:SPIRE_CMP004_ObjectSearch  label="{!$Label.c.SPIRE_Rule_Engine_Source_Object_Label}" placeholder="{!$Label.c.SPIRE_Rule_Engine_Source_Object_Placeholder}" selectedRecord="{!v.selectedObj}" value="{!v.selectedObjValue}"/>
+                            </div>
+                            <div class="slds-col slds-size_1-of-3">
+                                <!-- Hidden field used to bind Is Actif value to rule engine field -->
+                                <lightning:inputField fieldName="SPIRE_Is_Active__c" class="hiddenField" value="{!v.isActif}"/>
+                                <lightning:input name="{!$Label.c.SPIRE_Rule_Engiine_Is_Active_Label}"
+                                                label="{!$Label.c.SPIRE_Rule_Engiine_Is_Active_Label}"
+                                                type="toggle"
+                                                messageToggleActive="Enabled"
+                                                messageToggleInactive="Not Enabled"
+                                                variant="label-stacked" 
+                                                checked="{!v.isActif}"
+                                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Section 1 End-->
+
+                <!-- Section 2 Start-->
+                <div class="slds-section slds-is-open" aura:id="section2">    
+                    <h3 class="slds-section__title">
+                        <button aria-controls="section2Content" class="slds-button slds-section__title-action" type="button">
+                            <span onclick="{!c.toggleSection}" data-auraId="section2">
+                                <lightning:icon iconName="utility:switch"
+                                                size="x-small"
+                                                class="slds-section__title-action-icon slds-button__icon_left"
+                                                alternativeText="button icon" 
+                                                />
+                            </span>
+                            <span class="slds-truncate">{!$Label.c.SPIRE_Rule_Engine_Section_2_Title}</span>
+                        </button>
+                    </h3>
+                    <!--section body-->
+                    <div class="slds-section__content" id="section2Content">
+                        <div class="slds-col slds-grid slds-grid_vertical-align-end">
+                            <div class="fullWidth">
+                                <c:SPIRE_CMP005CriteriaEditor selectedObj="{!v.selectedObj}" filters="{!v.filters}" idsToDelete="{!v.idsToDelete}"></c:SPIRE_CMP005CriteriaEditor>
+                            </div>
+                        </div>
+                        <div class="slds-grid slds-glutters slds-grid_vertical-align-end">
+							<div class="slds-col slds-size_1-of-3">
+                                <lightning:inputField fieldName="SPIRE_Take__c" required="true" value="{!v.takeActionWhen}"/>
+                            </div>
+                            <!-- Custom Logic field to be shown only when Meet Custom Condition Logic is choosen -->
+                            <aura:if isTrue="{!v.takeActionWhen == $Label.c.SPIRE_Rule_Engine_Meet_Custom_Logic}">
+                                <div class="slds-col slds-size_1-of-3">
+                                    <lightning:inputField fieldName="SPIRE_Custom_Logic__c" aura:id="filterLogic"/>
+                                </div>
+                            </aura:if>
+                            <div class="slds-col slds-size_1-of-3"></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Section 2 End-->
+
+                <!-- Section 3 Start-->
+                <div class="slds-section slds-is-open" aura:id="section3">    
+                    <h3 class="slds-section__title">
+                        <button aria-controls="section3Content" class="slds-button slds-section__title-action" type="button">
+                            <span onclick="{!c.toggleSection}" data-auraId="section3">
+                                <lightning:icon iconName="utility:switch"
+                                                size="x-small"
+                                                class="slds-section__title-action-icon slds-button__icon_left"
+                                                alternativeText="button icon" 
+                                                />
+                            </span>
+                            <span class="slds-truncate">{!$Label.c.SPIRE_Rule_Engine_Section_3_Title}</span>
+                        </button>
+                    </h3>
+                    <!--section body-->
+                    <div class="slds-section__content" id="section3Content">
+                        <div class="slds-grid slds-glutters slds-grid_vertical-align-start">
+                            <div class="slds-col slds-size_1-of-3">
+                                <c:SPIRE_CMP001_FieldSelection selectedObj="{!v.selectedObj}" selectedField="{!v.fieldName}" required="true" label="{!$Label.c.SPIRE_Rule_Engine_Trget_Field_Label}"></c:SPIRE_CMP001_FieldSelection>
+                            </div>
+                            <div class="slds-col slds-size_1-of-3">
+                                <lightning:inputField fieldName="SPIRE_Score__c" required="true"/>
+                            </div>
+                            <div class="slds-col slds-size_1-of-3">
+                                <!-- Hidden fields to bind action values to rule engine fields-->
+                                <div class="slds-col hiddenField slds-size_1-of-3">
+                                    <lightning:inputField fieldName="SPIRE_Field_Name__c" value="{!v.fieldName.pathNames}" required="true"/>
+                                    <lightning:inputField fieldName="SPIRE_Action_Object__c" value="{!v.fieldName.refObjName}"  required="true"/>
+                                    <lightning:inputField fieldName="SPIRE_TECH_Target_Field_Label__c" value="{!v.fieldName.pathLabels}"  required="true"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slds-grid--vertical-align-bottom">
+                            <lightning:icon iconName="utility:warning" alternativeText="Warning!" title="Warning" size="x-small" class="slds-m-left_medium" />
+                            <span class="slds-text-body_small">Verify if the field "Rules_Engine__c" exists on the target object to get the rules summary</span>
+                        </div>
+                        
+                    </div>
+                </div>
+                <!-- Section 3 End-->
+            </lightning:recordEditForm>
+        </div>
+        <!-- Rule Engine form Body End -->
+        <!-- Footer Start -->
+        <div>
+            <footer class="slds-modal__footer">
+                <ul class="slds-button-group-row">
+                    <li class="slds-button-group-item">
+                    <button class="slds-button slds-button_neutral" onclick="{!c.cancel}">{!$Label.c.SPIRE_Rule_Engine_Cancel_Button}</button>
+                    </li>
+                    <li class="slds-button-group-item">
+                    <button class="slds-button slds-button_brand" onclick="{!c.submitRecord}">{!$Label.c.SPIRE_Rule_Engine_Save_Button}</button>
+                    </li>
+                </ul>
+            </footer>
+        </div>
+        <!-- Footer End -->
+        <!--Breaks to make the end of component visible -->
+        <br/>
+        <br/>
+        <br/>
+    </div>
+    
+</aura:component>

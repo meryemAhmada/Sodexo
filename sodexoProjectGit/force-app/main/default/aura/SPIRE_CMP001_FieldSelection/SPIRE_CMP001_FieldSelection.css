@@ -1,0 +1,36 @@
+.THIS .container{
+    background-color: white;
+    width:100%;
+    white-space: nowrap;
+    padding-left: 5%;
+    padding-bottom: 5%;
+    width: 100%;
+}
+
+.THIS .formContainer{
+    margin-bottom: 3%;
+}
+
+.THIS .colElement{
+    display: inline-block;
+    *display: inline;/*For IE7*/
+    *zoom:1;/*For IE7*/
+    vertical-align:top;
+    margin-right:20px;
+    white-space:normal;
+}
+
+.THIS .selectElement{
+    width: 25%;
+}
+
+.THIS p{
+    line-height: 200%;
+}
+
+.THIS .inputStyle{
+    background-color: white !important;
+    border: var(--lwc-borderWidthThin,1px) solid var(--lwc-colorBorderInput,rgb(221, 219, 218)) !important;
+    border-radius: var(--lwc-borderRadiusMedium,0.25rem) !important;
+    cursor: pointer;
+}

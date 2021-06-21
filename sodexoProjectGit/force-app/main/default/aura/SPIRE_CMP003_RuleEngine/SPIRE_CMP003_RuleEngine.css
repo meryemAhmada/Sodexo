@@ -1,0 +1,42 @@
+.THIS .slds-theme_default{
+    padding: 0px !important;
+}
+
+.THIS .hiddenField{
+    display: none;
+}
+
+.THIS .slds-col{
+    padding-right: 2%;
+    padding-left: 1%;
+}
+
+.THIS .fullWidth{
+    width: 100%;
+}
+
+.THIS .slds-form-element_stacked{
+    padding: 0px !important;
+}
+
+.THIS .slds-input[readonly] {
+    font-size: inherit !important;
+    font-weight: inherit !important;
+}
+
+.THIS .spinnerContainer{
+    position: fixed !important;
+}
+
+.THIS .customIcon div{
+    vertical-align: top !important;
+}
+ 
+.THIS.customIcon div{
+    vertical-align: top !important;
+}
+
+.THIS .slds-form-element__help{
+    color: white !important;
+    display: none !important;
+}

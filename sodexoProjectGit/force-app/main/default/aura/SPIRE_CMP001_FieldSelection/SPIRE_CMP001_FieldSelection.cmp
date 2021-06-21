@@ -1,0 +1,149 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes" 
+                controller="SPIRE_CTRL001FieldSelection">
+    
+    <!-- Inputs -->
+    <aura:attribute name="required" type="Boolean"/>
+    <aura:attribute name="selectedObj" type="Object" default="''" description="current object"/>
+    <aura:attribute name="label" type="String" default="Field" description="label of field input"/>
+
+    <!-- Field Attributes -->
+    <aura:attribute name="selectedFields" type="List" default="[]" description="list of selected parent fields"/>
+    <aura:attribute name="selectedFieldsSize" type="Integer" description="size of selected parent fields"/>
+    <aura:attribute name="selectedValue" type="String" description="selected field from picklist"/>
+    <aura:attribute name="fields" type="List" description="field options list for current picklist"/>
+    <aura:attribute name="fieldsMap" type="Map" description="map where key = fieldName and value = fieldInfoObject"/>
+    <aura:attribute name="chosenField" type="Object" description="non reference field selected from picklist (final)"/>
+    <aura:attribute name="selectedField" type="Object" description="selected field to be used after choose click"/>
+
+    <!-- Flags -->
+    <aura:attribute name="isFinalFieldSelected" type="Boolean" default="false"/>
+    <aura:attribute name="isModalOpen" type="Boolean" default="false"/>
+    <aura:attribute name="tooltip" type="Boolean" default="false"/>
+    <aura:attribute name="spinner" type="Boolean" default="true"/>
+
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    
+    <aura:handler name="change" value="{!v.selectedObj}" action="{!c.handleObjChange}"/>
+
+    <!-- Field Input Start-->
+    <div class="slds-form-element">
+        <!-- Label -->
+        <aura:if isTrue="{!v.required}"> <span style="color: red;">*</span></aura:if>
+        <label class="slds-form-element__label" for="text-input-id-1">{!v.label}</label>
+
+        <!-- ToolTip-->
+        <aura:if isTrue="{!and(v.tooltip == true , v.selectedField.pathLabels != null)}">
+            <div class="slds-popover slds-popover_tooltip slds-popover_full-width" role="tooltip" id="help" style="position:absolute;top:-4px;left:35px">
+                <div class="slds-popover__body">{!v.selectedField.pathLabels}</div>
+            </div>
+        </aura:if>
+
+        <!-- Input -->
+        <div class="slds-form-element__control slds-input-has-icon slds-input-has-icon_left" onmouseover="{!c.showToolTip}" onmouseout="{!c.HideToolTip}">
+            <lightning:icon iconName="utility:search" size="xx-small" class="slds-icon slds-input__icon slds-input__icon_left slds-icon-text-default"/>
+            <input type="text" placeholder="Click here to select field…" 
+                                class="slds-input inputStyle" value="{!v.selectedField.pathLabels}" 
+                                readonly="true" onclick="{!c.openModal}" 
+                                onmouseover="{!c.showToolTip}" 
+                                onmouseout="{!c.HideToolTip}"
+                                required="{!v.required}" 
+                                disabled = "{!v.selectedObj == null}"/>
+        </div>
+    </div>
+    <!-- Field Input End -->
+
+    <!-- Modal Start -->
+    <aura:if isTrue="{!v.isModalOpen}">
+        <!--Modal Box Start-->
+        <div role="dialog" class="slds-modal slds-fade-in-open ">
+            <div class="slds-modal__container">
+                <!--Modal Box Header Start-->
+                <header class="slds-modal__header">
+                    <h1 class="slds-text-heading--medium">{!$Label.c.SPIRE_FieldSelection_Header}</h1>
+                </header>
+                <!--Modal Box Header End--> 
+
+                <!--Modal Box Content Start-->
+                <div class="container">
+                    <c:SPIRE_CMP002_Spinner spinner="{!v.spinner}"></c:SPIRE_CMP002_Spinner>
+
+                    <!-- Field Selector Section Start -->
+                    <div class="slds-form formContainer">
+                        <div class="slds-form__row">
+                            <!-- Source Object Label-->
+                            <div class="slds-form-element__label">
+                                <br/>
+                                <b>{!v.selectedObj.label} </b>
+                            </div>
+                            <!-- Path of selected Parent Fields-->
+                            <aura:iteration items="{!v.selectedFields}" var="field" indexVar="level">
+                                <div class="colElement">
+                                    <br/>  
+                                    <b> > </b>
+                                </div>
+                                <div class="colElement">
+                                    <br/>  
+                                    <a onclick="{!c.handleClick}" name="{!field}" id="{!level}">{!field.label}</a>
+                                </div>
+                            </aura:iteration>
+                            <!-- Picklist : fields of last selected parent field -->
+                            <aura:if isTrue="{!v.isFinalFieldSelected!=true}">
+                                <div class="colElement">
+                                    <br/>  
+                                    <b> > </b>
+                                </div>
+                                <div class="colElement selectElement">
+                                    <lightning:select onchange="{!c.handleChangeField}" label="" variant="label-hidden" value="{!v.selectedValue}">
+                                        <aura:iteration items="{!v.fields}" var="option">
+                                            <aura:if isTrue="{!option.fieldtype == 'LOOKUP'}">
+                                                <option text="{!option.label + ' >'}" value="{!option.name}" selected="{!option.selected}"/>
+                                                <aura:set attribute="else">
+                                                    <option text="{!option.label}" value="{!option.name}" selected="{!option.selected}"/>
+                                                </aura:set>
+                                            </aura:if>
+                                        </aura:iteration>
+                                    </lightning:select>
+                                </div>
+                            </aura:if>
+                        </div>
+                    </div>
+                    <!-- Field Selector Section End -->
+
+                    <!-- Selected Field Section Start -->
+                    <aura:if isTrue="{!v.isFinalFieldSelected}">
+                        <div class="slds-grid slds-grid_align-center">
+                            {!$Label.c.SPIRE_Field_Selection_Preview_Text}
+                        </div>
+                        <br/>
+                        <div class="slds-grid slds-grid_align-center">
+                            <div class="slds-grid slds-gutters slds-box">
+                                <div class="slds-col vertical-align center">
+                                    <lightning:icon iconName="standard:folder" title="mergeField" size="large"/>
+                                </div>
+                                <div class="slds-col vertical-align center">
+                                    <p class="slds-hyphenate">
+                                        {!v.chosenField.field.label}
+                                        <br/>
+                                        API Name: {!v.chosenField.field.name}
+                                    </p>
+                                </div>
+                            </div>
+                        </div> 
+                    </aura:if>
+                    <!-- Selected Field Section End -->
+                </div>              
+                <!--Modal Box Content End-->
+                
+                <!--Modal Box Button Start-->
+                <footer class="slds-modal__footer">
+                    <lightning:button variant="brand" label="{!$Label.c.SPIRE_Field_Selection_Cancel_Button}" onclick="{! c.cancelClick }" />
+                    <lightning:button variant="brand" label="{!$Label.c.SPIRE_Field_Selection_Choose_Button}" onclick="{! c.chooseClick }" disabled="{!not(v.isFinalFieldSelected)}"/>
+                </footer>
+                <!--Modal Box Button End-->
+            </div>
+        </div>
+        <div class="slds-backdrop slds-backdrop--open"></div>
+    </aura:if>
+    <!-- Modal End -->
+</aura:component>

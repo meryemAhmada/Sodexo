@@ -1,0 +1,71 @@
+<aura:component>
+    <aura:attribute name="requestField" type="Object"/>
+    <aura:attribute name="value" type="String"/>
+    
+    <aura:method name="doValidityCheck" action="{!c.doCheck}" />
+
+    <aura:if isTrue="{!v.requestField.fieldtype == 'DATETIME'}">
+        <div class="simple-imput">
+            <lightning:input type="datetime"  id="{!v.requestField.name}" value="{!v.value}" aura:id="valueInputDATETIME"/>
+        </div>
+    </aura:if> 
+    <aura:if isTrue="{!v.requestField.fieldtype == 'CURRENCY'}">
+        <div class="simple-imput">
+            <lightning:input label="{!$Label.c.SPIRE_Simple_Input_Label}" type="number" formatter="currency" step="0.01" aura:id="valueInputCURRENCY" id="{!v.requestField.name}" value="{!v.value}"/>
+        </div>
+    </aura:if>
+    <aura:if isTrue="{!v.requestField.fieldtype == 'DATE'}">
+        <div class="simple-imput">
+            <lightning:input label="{!$Label.c.SPIRE_Simple_Input_Label}" type="date"  id="{!v.requestField.name}" aura:id="valueInputDATE" value="{!v.value}"/>
+        </div>
+    </aura:if>
+    <aura:if isTrue="{!or(or(v.requestField.fieldtype == 'PICKLIST' , v.requestField.fieldtype == 'MULTIPICKLIST'),v.requestField.fieldtype == 'COMBOBOX')}">
+        <div class="simple-imput">
+            <lightning:select label="{!$Label.c.SPIRE_Simple_Input_Label}" value="{!v.value}" aura:id="valueInputPICKLIST">
+                <option text="{!$Label.c.SPIRE_Simple_Input_None_Option}" value="''"/>
+                <aura:iteration items="{!v.requestField.options}" var="option">
+                    <option text="{!option.label}" value="{!option.value}"/>
+                </aura:iteration>
+            </lightning:select>
+        </div>
+    </aura:if>
+    <aura:if isTrue="{!v.requestField.fieldtype == 'TIME'}">
+        <div class="simple-imput">
+            <lightning:input label="{!$Label.c.SPIRE_Simple_Input_Label}" type="time" id="{!v.requestField.name}" value="{!v.value}" aura:id="valueInputTIME"/>
+        </div>
+    </aura:if>
+    <aura:if isTrue="{!or(or(v.requestField.fieldtype == 'INTEGER',v.requestField.fieldtype == 'DOUBLE'),v.requestField.fieldtype == 'LONG')}">
+        <div class="simple-imput">
+            <lightning:input label="{!$Label.c.SPIRE_Simple_Input_Label}" type="number" step="any" id="{!v.requestField.name}" value="{!v.value}" aura:id="valueInputNumber"/>
+        </div>
+    </aura:if>
+    <aura:if isTrue="{!v.requestField.fieldtype == 'PERCENT'}">
+        <div class="simple-imput">
+            <!--add custom label for input field-->
+            <label class="slds-form-element__label" style="margin-right: 0.5rem;">{!$Label.c.SPIRE_Simple_Input_Label}</label>
+            <!--lightning help text for input field-->
+            <lightning:helptext content="{!$Label.c.SPIRE_Simple_Input_Percent_Help_Text}" class="customIcon"/> 
+            <lightning:input type="number" min="0" max="1" formatter="percent" step="0.01" id="{!v.requestField.name}" 
+                             value="{!v.value}" variant="label-hidden" aura:id="valueInputPERCENT"/>
+        </div>
+    </aura:if>
+    <aura:if isTrue="{!v.requestField.fieldtype == 'BOOLEAN'}">
+        <div class="simple-imput">
+            <lightning:select label="{!$Label.c.SPIRE_Simple_Input_Label}" value="{!v.value}" aura:id="valueInputBOOLEAN">
+                <option text="{!$Label.c.SPIRE_Simple_Input_None_Option}" value="''"/>
+                <option text="TRUE" value="TRUE" selected="true"/>
+                <option text="FALSE" value="FALSE"/>
+            </lightning:select>
+        </div>
+    </aura:if>
+    <aura:if isTrue="{!v.requestField.fieldtype == 'STRING'}">
+        <div class="simple-imput">
+        <lightning:input label="{!$Label.c.SPIRE_Simple_Input_Label}" name="input1"  id="{!v.requestField.name}" value="{!v.value}" aura:id="valueInputSTRING"/>
+        </div>
+    </aura:if>
+    <aura:if isTrue="{!v.requestField.fieldtype == 'REFERENCE'}">
+        <div class="simple-imput">
+        <lightning:input label="{!$Label.c.SPIRE_Simple_Input_Label}" name="input1"  id="{!v.requestField.name}" value="{!v.value}" aura:id="valueInputREFERENCE"/>
+        </div>
+    </aura:if>
+</aura:component>
